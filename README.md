@@ -1,4 +1,4 @@
-# Venta de Productos de Escritorio!
+# Venta de Productos de Escritorio! 
 
 La primera pre-entrega contempla una página html muy sencilla que contiene el link a un archivo javascript con la funcionalidad de este sitio de ventas de productos de escritorio.
 
@@ -6,6 +6,7 @@ Esta página mostrará un mensaje al usuario, similar a un menú que contiene lo
 El sistema le consultará si desea ingresar más productos al "carrito de compras", en el caso de seleccionar "aceptar", se repetirá lo descrito en el párrafo anterior, en el caso de que el usuario no quiera ingresar más productos, éste debe seleccionar la opción "cancelar" y con esto se comienzan a realizar los cálculos internos para entregar los totales de la compra al usuario. Además se le solicitará datos como dirección y ciudad para realizar el envío de los productos comprados a su domicilio.
 
 ## Funcionalidades
+
 Entre las funcionalidades disponibles en esta entrega se tiene:
 
 * _Cálculo del IVA de la compra a realizar:_ en este caso el % de IVA aplicado en Chile es el 19%.
@@ -16,7 +17,7 @@ Entre las funcionalidades disponibles en esta entrega se tiene:
 * **NOTA:** Los valores de los productos, así como el valor a cobrar por el envío a domicilio son ficticios y usados solo para crear esta pre-entrega.
 
 
-# Consideraciones
+## Consideraciones
 
 En esta pre-entrega se tomaron en consideración los siguientes temas:
 
@@ -26,3 +27,12 @@ En esta pre-entrega se tomaron en consideración los siguientes temas:
 - Mostrar mensajes al usuario
 - Realizar validaciones de los datos ingresados por el usuario
 - Enviar mensajes al usuario mediante _alerts_
+
+## ¿Cómo probar esta pre-entrega?
+
+Para poder probar este ejemplo, es necesario realizar lo siguiente:
+
+1. Clonar este proyecto en algún directorio de tu computador
+2. Luego puedes hacer dos cosas:
+    - en la carpeta en donde clonaste el proyecto dar doble clic al archivo _index.html_ y eso hará que se te abra una página de navegador en donde puedes comenzar a probar la funcionalidad
+    - abrir el proyecto clonado con el IDE que utilizas a diario, hacer clic derecho sobre el archivo _index.html_ y elegir la opción _abrir con Live Server_, eso abrirá una página de navegador en donde podrás comenzar a probar la funcionalidad, además de poder visualizar los componentes de esta primera entrega, el html y el js desarrollados.
