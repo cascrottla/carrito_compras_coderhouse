@@ -107,7 +107,6 @@ productos.push(new Producto(5, "Regla", "35", Math.floor(Math.random() * 40) + 1
 productos.push(new Producto(6, "Estuche", "250", Math.floor(Math.random() * 5) + 1));
 productos.push(new Producto(7, "Clips", "34", Math.floor(Math.random() * 11) + 1));
 
-console.log("cantidad de productos ingresados:"+productos.length);
 alert( 'Las compras con un monto total mayor a $3.000 tienen envío gratuito.\nCompras con monto menor a eso, tienen un recargo de $750 por envío a domicilio');
 
 while (showMenu){
