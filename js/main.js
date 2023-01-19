@@ -1,167 +1,168 @@
+class Compra {
+    constructor(totalCompra, totalIVA, listadoProductos, totalSinIVA) {
+        this.totalCompra = totalCompra;
+        this.totalIVA = totalIVA;
+        this.listadoProductos = listadoProductos;
+        this.totalSinIVA = totalSinIVA;
+    }
+
+    calcularMontoTotal(){
+        let totalCompra = parseInt(this.totalSinIVA) + parseInt(this.totalIVA);
+        let mensajeMontos = 'El monto total de la compra sin IVA es: $' + this.totalSinIVA;
+        mensajeMontos += '\nEl monto total de la compra con IVA (19%) es: $' +totalCompra;
+
+        if (totalCompra < 3000) {
+            const envioDomicilio = 750;
+            alert('El monto total de la compra es $'+ totalCompra + ', por lo que se recargará el monto de envío a domicilio ($750)');
+            totalCompra += envioDomicilio;
+            mensajeMontos += '\nEl monto total con IVA y envío ($750) es: $'+totalCompra;
+        }
+        alert(mensajeMontos);
+        this.totalCompra = totalCompra;
+    }
+   
+    muestraResumenCompra(productosComprados) {
+        const nombre = prompt('Ingrese nombre y apellido de quién compra');
+        const direccion = prompt('Ingrese dirección de envío');
+        const ciudad = prompt('Ingrese ciudad');
+
+        const div = document.createElement('div');
+        const ul = document.createElement('ul');
+
+        div.innerHTML = ` 
+            <h1>Resumen de Compra realizada</h1>
+            <b>Monto Productos:</b> ${this.totalSinIVA}<br></br>
+            <b>IVA (19%):</b> ${this.totalIVA}<br></br>
+            <b>Monto Total Compra:</b> ${this.totalCompra}<br></br>
+            <b>Nombre cliente:</b> ${nombre}<br></br>
+            <b>Dirección:</b> ${direccion}<br></br>
+            <b>Ciudad:</b> ${ciudad}<br></br>
+            <br></br>
+            <h2>Listado de productos comprados:</h2>`;
+        
+        for (const producto of productosComprados) {
+            const li = document.createElement('li');
+            li.innerHTML = `<p><strong>${producto.nombre}</strong></p>`;
+            ul.append(li);
+        }
+
+        document.getElementById('resumen').append(div);
+        document.getElementById('productos').append(ul);
+        
+    }
+}
+
+class Producto {
+    constructor(id, nombre, precio, stock) {
+        this.id = id;
+        this.nombre = nombre;
+        this.precio = precio;
+        this.stock = stock;
+    }
+
+    //Baja stock de producto luego de una compra
+    cambiaStock(cantidadProductoABajar) {
+        this.stock =- cantidadProductoABajar;
+    }
+
+    obtenerMontoProducto(cantidad){
+        if (cantidad > 0 && this.stock >= cantidad) {
+            return cantidad * this.precio
+        }
+    }
+
+    calcularIVA(montoProducto) {
+        const IVA = 19; //% IVA en Chile
+        let montoIVA = (montoProducto * IVA)/100;
+        montoIVA = parseFloat(montoIVA);
+
+        if ( isNaN(montoIVA) || montoIVA < 1 ) {
+            alert('Problemas al calcular el Monto IVA de la compra, ingrese los productos nuevamente por favor');
+            return -1;
+        }
+        return montoIVA;
+    }
+}
+
+class ProductoComprado {
+    constructor(id, nombre, montoTotalSinIVA, cantidad) {
+        this.id = id;
+        this.nombre = nombre;
+        this.montoTotalSinIVA = montoTotalSinIVA;
+        this.cantidad = cantidad;
+    }
+}
+
+
 let showMenu = true;
-let envioDomicilio = 0;
 let totalSinIVA = 0;
+const productosComprados = []
+const carrito = new Compra(0,'', 0, productosComprados, 0);
+const productos = [];
+productos.push(new Producto(1, "Lápiz", "100", Math.floor(Math.random() * 10) + 1));
+productos.push(new Producto(2, "Libro", "500", Math.floor(Math.random() * 20) + 1));
+productos.push(new Producto(3, "Goma", "50", Math.floor(Math.random() * 50) + 1));
+productos.push(new Producto(4, "Destacador", "120", Math.floor(Math.random() * 20) + 1));
+productos.push(new Producto(5, "Regla", "35", Math.floor(Math.random() * 40) + 1));
+productos.push(new Producto(6, "Estuche", "250", Math.floor(Math.random() * 5) + 1));
+productos.push(new Producto(7, "Clips", "34", Math.floor(Math.random() * 11) + 1));
 
-const precioLapiz = 100;
-const precioLibro = 500;
-const precioGoma = 50;
-const precioDestacador = 120;
-const precioRegla = 35;
-const precioEstuche = 250;
-const precioClips = 34;
-
-//Muestra un pequeño resumen con los montos, iva y total a pagar por la compra más los datos ingresados para el envio a domicilio
-const mostrarResumenCompra = (totalSinIVA, totalConIVA, montoIVA) => {
-    const direccion = prompt('Ingrese dirección de envío');
-    const ciudad = prompt('Ingrese ciudad');
-
-    document.body.innerHTML = "<h1>Resumen de Compra realizada</h1> "+
-    "<div>"+
-        "<b>Monto Productos:</b> $"+totalSinIVA+"<br></br>"+
-        "<b>IVA (19%):</b> $"+montoIVA+"<br></br>"+
-        "<b>Monto Total Compra:</b> $"+totalConIVA+"<br></br>"+
-        "<b>Dirección:</b> "+direccion+"<br></br>"+
-        "<b>Ciudad:</b> "+ciudad+"<br></br>"+
-    "</div>"+
-    "<br></br>"+
-    "<p>Dentro de 3 días hábiles sus productos estarán en su domicilio.<br></br>"+
-    "¡Gracias por su compra!</p>";
-}
-
-// Obtiene el monto a pagar por producto de acuerdo a la opcion y cantidad ingresada
-const obtenerMontoProducto = (cantidad, opcion) => {
-    let total = 0;
-    switch (opcion) {
-        case 1 : { // precioLapiz = 100
-            total = precioLapiz * cantidad;
-            break;
-        }
-        case 2 : { // precioGoma = 50
-            total = precioGoma * cantidad;
-            break;
-        }
-        case 3 : { // precioDestacador = 120
-            total = precioDestacador * cantidad;
-            break;
-        }
-        case 4 : { // precioRegla = 35
-            total = precioRegla * cantidad;
-            break;
-        }
-        case 5 : { // precioLibro = 500
-            total = precioLibro * cantidad;
-            break;
-        }
-        case 6 : { // precioEstuche = 250
-            total = precioEstuche * cantidad;
-            break;
-        }
-        case 7 : {// precioClips = 34
-            total = precioClips * cantidad;
-            break;
-        }
-    }
-    return total;
-}
-
-//Crea string con el codigo del producto y el nombre para ser mostrado al usuario
-const obtenerNombreProducto = (opcion) => {
-    switch ( opcion ){
-        case 1 : { 
-            return '( '+opcion + ' - Lápiz )';
-        }
-        case 2 : { 
-            return '( '+opcion + ' - Goma de Borrar )';
-        }
-        case 3 : { 
-            return '( '+opcion + ' - Destacador )';
-        }
-        case 4 : {
-            return '( '+opcion + ' - Regla )';
-        }
-        case 5 : { 
-            return '( '+opcion + ' - Libro )';
-        }
-        case 6 : {
-            return '( '+opcion + ' - Estuche )';
-        }
-        case 7 : {
-            return '( '+opcion + ' - Clips )';
-        }
-    }
-}
-
-//Calcula el IVA de la compra
-const calcularIVA = (montoProducto) => {
-    const IVA = 19; //es el valor del IVA en Chile
-
-    let montoIVA = (montoProducto * IVA)/100;
-    montoIVA = parseFloat(montoIVA);
-
-    if ( isNaN(montoIVA) || montoIVA < 1 ) {
-        alert('Problemas al calcular el Monto IVA de la compra, ingrese los productos nuevamente por favor');
-        return -1;
-    }
-    return montoIVA;
-}
-
-// Calcula el monto total de la compra, incluyendo el IVA
-const calcularMontoTotal = (totalSinIVA, montoIVA) => {
-    
-    let totalCompra = parseInt(totalSinIVA) + parseInt(montoIVA);
-    let mensajeMontos = 'El monto total de la compra sin IVA es: $' + totalSinIVA;
-    mensajeMontos += '\nEl monto total de la compra con IVA (19%) es: $' +totalCompra;
-
-    if (totalCompra < 3000) {
-        envioDomicilio = 750;
-        alert('El monto total de la compra es $'+ totalCompra + ', por lo que se recargará el monto de envío a domicilio ($750)');
-        totalCompra += envioDomicilio;
-        mensajeMontos += '\nEl monto total con IVA y envío ($750) es: $'+totalCompra;
-    }
-    alert(mensajeMontos);
-    return totalCompra;
-}
-
-alert( 'Las compras con un monto total mayor a $3.000 tienen envío gratuito.\nCompras con monto menor a eso, tienen un recargo de $750 por envío a domicilio' );
+console.log("cantidad de productos ingresados:"+productos.length);
+alert( 'Las compras con un monto total mayor a $3.000 tienen envío gratuito.\nCompras con monto menor a eso, tienen un recargo de $750 por envío a domicilio');
 
 while (showMenu){
-    
-    let opcion = prompt('Indique el producto que quiere comprar:\n 1. Lápiz --> $100\n 2. Goma de Borrar  --> $50\n 3. Destacador  -->$120\n 4. Regla  -->$35\n 5. Libro  --> $500\n 6. Estuche  --> $250\n 7. Clips(5 un)  --> $34');
+    let opcion = prompt(`Indique el producto que quiere comprar:
+                        1. Lápiz --> $100
+                        2. Libro  --> $500 
+                        3. Goma  -->$50
+                        4. Destacador  -->$120
+                        5. Regla  --> $35
+                        6. Estuche  --> $250 
+                        7. Clips(5 un)  --> $34
+                        0. Ver stock de productos`);
+
     opcion = parseInt(opcion);
    
-    if (isNaN(opcion) || opcion < 1 || opcion > 7) {
+    if (isNaN(opcion) || opcion < 0 || opcion > 7) {
         alert('Ingrese una opción de menú válida [1..7]');
     } else {
-        let quantity = prompt('Indique la cantidad de producto ' + obtenerNombreProducto(opcion) + ' a comprar');
-        quantity = parseInt(quantity);
-
-        if (isNaN(quantity) || quantity == 0) {
-            alert('La cantidad de productos ingresada no es correcta, debe ser un número mayor a 0')
+        //ver stock de productos
+        if (opcion === 0){
+            let stockProductos  = "Stock de productos disponibles:\n ==========================\n";
+            productos.forEach((producto) => {
+                stockProductos += producto.id +". " + producto.nombre + ": "+producto.stock + "\n";
+            });
+            alert(stockProductos);
         } else {
-            totalSinIVA += obtenerMontoProducto(quantity, opcion); 
-            const nuevaCompra = confirm('¿Quiere realizar otra compra?');
+            const prodSeleccionado = productos.find(producto => producto.id === opcion);
+            let cantidad = prompt('Indique la cantidad de producto ' + prodSeleccionado.nombre + ' a comprar');
+            cantidad = parseInt(cantidad);
 
-            if (nuevaCompra == false){
-                showMenu = false;
-                let montoIVA = parseInt(calcularIVA(totalSinIVA));
-                let totalConIVA = calcularMontoTotal(totalSinIVA, montoIVA);
-                mostrarResumenCompra(totalSinIVA, totalConIVA, montoIVA);
-            } else {
-                showMenu = true;
+            if (isNaN(cantidad) || cantidad == 0) {
+                alert('La cantidad de productos ingresada no es correcta, debe ser un número mayor a 0');
+            }else {
+                if(cantidad > prodSeleccionado.stock) {
+                    alert('La cantidad de producto '+prodSeleccionado.nombre+' es superior a la disponible.\n Si desea puede ver el stock disponible ingresando la opción 0 en menu principal.');
+                } else {
+                    montoTotalPorProductoSeleccionado = prodSeleccionado.obtenerMontoProducto(cantidad); 
+                    carrito.totalSinIVA += montoTotalPorProductoSeleccionado;
+                    totalIVA = prodSeleccionado.calcularIVA(montoTotalPorProductoSeleccionado);
+                    carrito.totalIVA += totalIVA;
+                    const productoComprado = new ProductoComprado(prodSeleccionado.id, prodSeleccionado.nombre, montoTotalPorProductoSeleccionado, cantidad);
+                    productosComprados.push(productoComprado);
+
+                    const nuevaCompra = confirm('¿Quiere realizar otra compra?');
+                    if (nuevaCompra == false){
+                        showMenu = false;
+                        carrito.calcularMontoTotal();
+                        carrito.muestraResumenCompra(productosComprados);
+                    } else {
+                        showMenu = true;
+                    }
+                }
+                
             }
         }
+        
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
