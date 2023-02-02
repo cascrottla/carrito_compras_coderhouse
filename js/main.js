@@ -1,9 +1,7 @@
-
-let showMenu = true;
-let totalSinIVA = 0;
-const productosEnCarrito = JSON.parse(localStorage.getItem('carritoStorage')) || [];
 let cantidadCarrito = document.getElementById("cantidad-carrito");
-const cantidad =  productosEnCarrito.reduce((acc, { cantidad }) => acc + cantidad, 0);
+let contenedorProductos = document.getElementById('contenedor-productos');
+let carritoStorage = JSON.parse(localStorage.getItem('carritoStorage')) || JSON.parse('[]');
+const cantidad =  carritoStorage.reduce((acc, { cantidad }) => acc + cantidad, 0);
 
 cantidadCarrito.innerHTML= `
     <button data-bs-toggle="modal" data-bs-target="#basiceModal">
@@ -22,14 +20,13 @@ productos.push(new Producto(4, "Destacador", "2150", (Math.floor(Math.random() *
 productos.push(new Producto(5, "Regla", "510", (Math.floor(Math.random() * 40) + 1),'img/regla.jpg'));
 productos.push(new Producto(6, "Estuche", "1990", (Math.floor(Math.random() * 5) + 1), 'img/estuche.jpg'));
 productos.push(new Producto(7, "Clips", "790", (Math.floor(Math.random() * 11) + 1), 'img/clips.jpg'));
-productos.push(new Producto(8, "Cuaderno", "180", (Math.floor(Math.random() * 13) + 1), 'img/cuaderno.jpg'));
+productos.push(new Producto(8, "Cuaderno", "1800", (Math.floor(Math.random() * 13) + 1), 'img/cuaderno.jpg'));
 productos.push(new Producto(9, "Lápiz Pasta", "890", (Math.floor(Math.random() * 7) + 1), 'img/lapiz_pasta.jpg'));
 
-const contenedorProductos = document.getElementById('contenedor-productos');
 
+//arma card por cada producto
 const agregarCardDeProducto = producto => {
     const cardProducto = document.createElement('div');
-    cardProducto.className = 'col';
     cardProducto.innerHTML = `
         <div id="producto-${producto.id}" class="card" style="width: 18rem;">
             <img src="${producto.imagen}" class="card-img-top">
@@ -45,65 +42,50 @@ const agregarCardDeProducto = producto => {
     //agrega producto seleccionado en carrito
     document.querySelector(`#producto-${producto.id} button`).addEventListener(
         'click', () => {
-        const productoAgregado = productosEnCarrito.find(
-            (productoSeleccionado) => productoSeleccionado.id === producto.id
-        );
-        const cantidad = (productoAgregado?.cantidad ? productoAgregado.cantidad : 0) + 1;
+            const productoAgregado = carritoStorage.find(
+                (productoSeleccionado) => productoSeleccionado.id === producto.id
+            );
+            //se aumenta al cantidad de productos por tipo agregados en carrito
+            const cantidad = (productoAgregado?.cantidad ? productoAgregado.cantidad : 0) + 1;
         
-        if(!productoAgregado){
-            //agrega producto en el carrito con cantidad aumentanda en 1
-            productosEnCarrito.push({
-                ...producto,
-                cantidad
-            });
-        } else {
-            //aumenta la cantidad seleccionada de ese producto
-            productoAgregado.cantidad = cantidad;
-        }
+            if(!productoAgregado){
+                //agrega producto en el carrito con cantidad aumentanda en 1
+                carritoStorage.push({
+                    ...producto,
+                    cantidad
+                });
+            } else {
+                //aumenta la cantidad seleccionada de ese producto
+                productoAgregado.cantidad = cantidad;
+            }
+            
+            //se actualizan los productos en el array del storage
+            localStorage.setItem('carritoStorage', JSON.stringify(carritoStorage));
 
-        //se actualizan los productos en el array del storage
-        localStorage.setItem('carritoStorage', JSON.stringify(productosEnCarrito));
+            //se actualiza la cantidad de productos en el carrito (html)
+            const cantidadProductosCarrito = carritoStorage.reduce((acc, { cantidad }) => acc + cantidad, 0);
+            console.log("cantidad al agregar producto, carrito html:"+cantidadProductosCarrito);
+            //mostramos cambios en cantidad de productos en carrito
+            cantidadCarrito.innerHTML=`<button data-bs-toggle="modal" data-bs-target="#basiceModal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-cart" viewBox="0 0 16 16">
+                <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                </svg>(${cantidadProductosCarrito}) </button>`;
+});
 
-        //se actualiza la cantidad de productos en el carrito
-        const cantidadProductosCarrito = productosEnCarrito.reduce((acc, { cantidad }) => acc + cantidad, 0);
-       
-        //mostramos cambios en cantidad de productos en carrito
-        cantidadCarrito.innerHTML=`<button data-bs-toggle="modal" data-bs-target="#basiceModal">
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-cart" viewBox="0 0 16 16">
-            <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
-            </svg>(${cantidadProductosCarrito}) </button>`;
-    });
 }
 
-//evento clic en carrito: muestra los productos agregados, su precio y cantidad, además del total de la compra
+// evento clic en carrito: muestra los productos agregados, su precio y cantidad, además del total de la compra
 document.querySelector(`#cantidad-carrito button`).addEventListener(
     'click', () => {
         const detalleCarrito = document.getElementById("body-carrito");
         let productosEnModal = `<div class="body">`;
-
-        productosEnCarrito.forEach((productoSeleccionado => {
+        console.log(carritoStorage);
+        carritoStorage.forEach((productoSeleccionado => {
             productosEnModal += contenidoCarrito(productoSeleccionado);
         
         }));
-        productosEnModal += contenidoResumenCarrito(productosEnCarrito);
+        productosEnModal += contenidoResumenCarrito(carritoStorage);
         detalleCarrito.innerHTML= productosEnModal;
-    }
-);
-
-//evento clic en comprar de carrito, muestra mensaje de que compra fue realizada ok!
-document.querySelector(`#comprar-carrito button`).addEventListener(
-    'click', () => {
-        const detalleCarrito = document.getElementById("body-carrito");
-        detalleCarrito.innerHTML = ` 
-            <div class="body">
-                <h5> Tu compra se ha realizado con éxito!</h5>
-                <h5> Pronto tendrás tus productos en tu hogar</h5>
-            </div>`;
-        
-        const botonesCarrito = document.getElementById("comprar-carrito");
-        botonesCarrito.innerHTML= `
-        <button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="boton-cerrar-carrito">Cerrar</button> 
-        `
     }
 );
 
@@ -154,4 +136,3 @@ const calculaIVA = (montoProducto) => {
 productos.forEach((producto => {
     agregarCardDeProducto(producto);
 }));
-
