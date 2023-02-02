@@ -72,11 +72,82 @@ const agregarCardDeProducto = producto => {
             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-cart" viewBox="0 0 16 16">
             <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
             </svg>(${cantidadProductosCarrito}) </button>`;
+    });
+}
+
+//evento clic en carrito: muestra los productos agregados, su precio y cantidad, además del total de la compra
+document.querySelector(`#cantidad-carrito button`).addEventListener(
+    'click', () => {
+        const detalleCarrito = document.getElementById("body-carrito");
+        let productosEnModal = `<div class="body">`;
+
+        productosEnCarrito.forEach((productoSeleccionado => {
+            productosEnModal += contenidoCarrito(productoSeleccionado);
         
-        console.log(productosEnCarrito);
-});
+        }));
+        productosEnModal += contenidoResumenCarrito(productosEnCarrito);
+        detalleCarrito.innerHTML= productosEnModal;
+    }
+);
 
+//evento clic en comprar de carrito, muestra mensaje de que compra fue realizada ok!
+document.querySelector(`#comprar-carrito button`).addEventListener(
+    'click', () => {
+        const detalleCarrito = document.getElementById("body-carrito");
+        detalleCarrito.innerHTML = ` 
+            <div class="body">
+                <h5> Tu compra se ha realizado con éxito!</h5>
+                <h5> Pronto tendrás tus productos en tu hogar</h5>
+            </div>`;
+        
+        const botonesCarrito = document.getElementById("comprar-carrito");
+        botonesCarrito.innerHTML= `
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="boton-cerrar-carrito">Cerrar</button> 
+        `
+    }
+);
 
+const contenidoResumenCarrito = (carrito) => {
+    const totalDeLaCompra = totalCompra(carrito);
+    return `
+    <div class="footer">
+        <h6>Total Productos: $${totalDeLaCompra.totalSinIVA}</h6>
+        <h6>Total IVA: $${totalDeLaCompra.totalIVA}</h6>
+        <h6>Total Compra: $${totalDeLaCompra.totalCompra}</h6>
+    </div>`;
+}
+
+const contenidoCarrito = (producto) => {
+   return `
+    <div class="body">
+        <h5>${producto.nombre}</h5>
+        <span>Cantidad: ${producto.cantidad}</span>
+        <span>Precio: $${producto.precio}</span>
+    </div> <hr> `;
+ 
+}
+
+//obtiene los totales de la compra a realizar
+const totalCompra = (productosEnCarrito) => {
+    let totalCompra = 0, totalPorProducto = 0, montoIVA = 0;
+    
+    productosEnCarrito.forEach((producto => {
+        totalPorProducto = producto.cantidad * producto.precio;
+        montoIVA += Math.round(calculaIVA(totalPorProducto));
+        totalCompra += totalPorProducto;
+     }));
+
+    const compraARealizar = new Compra((totalCompra + montoIVA),montoIVA,productosEnCarrito,totalCompra);
+    return compraARealizar;
+}
+
+//calcula el iva a partir del monto de un producto seleccionado
+const calculaIVA = (montoProducto) => {
+    const IVA = 19; //% IVA en Chile
+    let montoIVA = (montoProducto * IVA)/100;
+    montoIVA = parseFloat(montoIVA);
+
+    return montoIVA;
 }
 
 //muestra productos en html
@@ -84,61 +155,3 @@ productos.forEach((producto => {
     agregarCardDeProducto(producto);
 }));
 
-// alert( 'Las compras con un monto total mayor a $3.000 tienen envío gratuito.\nCompras con monto menor a eso, tienen un recargo de $750 por envío a domicilio');
-
-// while (showMenu){
-//     let opcion = prompt(`Indique el producto que quiere comprar:
-//                         1. Lápiz --> $100
-//                         2. Libro  --> $500 
-//                         3. Goma  -->$50
-//                         4. Destacador  -->$120
-//                         5. Regla  --> $35
-//                         6. Estuche  --> $250 
-//                         7. Clips(5 un)  --> $34
-//                         0. Ver stock de productos`);
-
-//     opcion = parseInt(opcion);
-   
-//     if (isNaN(opcion) || opcion < 0 || opcion > 7) {
-//         alert('Ingrese una opción de menú válida [1..7]');
-//     } else {
-//         //ver stock de productos
-//         if (opcion === 0){
-//             let stockProductos  = "Stock de productos disponibles:\n ==========================\n";
-//             productos.forEach((producto) => {
-//                 stockProductos += producto.id +". " + producto.nombre + ": "+producto.stock + "\n";
-//             });
-//             alert(stockProductos);
-//         } else {
-//             const prodSeleccionado = productos.find(producto => producto.id === opcion);
-//             let cantidad = prompt('Indique la cantidad de producto ' + prodSeleccionado.nombre + ' a comprar');
-//             cantidad = parseInt(cantidad);
-
-//             if (isNaN(cantidad) || cantidad == 0) {
-//                 alert('La cantidad de productos ingresada no es correcta, debe ser un número mayor a 0');
-//             }else {
-//                 if(cantidad > prodSeleccionado.stock) {
-//                     alert('La cantidad de producto '+prodSeleccionado.nombre+' es superior a la disponible.\n Si desea puede ver el stock disponible ingresando la opción 0 en menu principal.');
-//                 } else {
-//                     montoTotalPorProductoSeleccionado = prodSeleccionado.obtenerMontoProducto(cantidad); 
-//                     carrito.totalSinIVA += montoTotalPorProductoSeleccionado;
-//                     totalIVA = prodSeleccionado.calcularIVA(montoTotalPorProductoSeleccionado);
-//                     carrito.totalIVA += totalIVA;
-//                     const productoComprado = new ProductoComprado(prodSeleccionado.id, prodSeleccionado.nombre, montoTotalPorProductoSeleccionado, cantidad);
-//                     productosComprados.push(productoComprado);
-
-//                     const nuevaCompra = confirm('¿Quiere realizar otra compra?');
-//                     if (nuevaCompra == false){
-//                         showMenu = false;
-//                         carrito.calcularMontoTotal();
-//                         carrito.muestraResumenCompra(productosComprados);
-//                     } else {
-//                         showMenu = true;
-//                     }
-//                 }
-                
-//             }
-//         }
-        
-//     }
-// }
